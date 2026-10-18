@@ -1,0 +1,22 @@
+Bug#1 Users with Newely created Accounts cannont check their bank account detials 
+
+Preconditions: 
+1. valid registred users
+
+Enviroment:
+https://parabank.parasoft.com/
+
+Serverity : High as it has imapct about main business functionality of system 
+
+Priority : high should be fixed as it is urgent bug 
+
+Steps 
+1. navigate to create new account select type savings 
+2. press create new account
+
+Expected results 
+Sucess message with the new account id created and user can check detial sof new account 
+
+Actual results 
+Sucess message but when user click on id of account faced and error messag 
+![alt text](image.png)

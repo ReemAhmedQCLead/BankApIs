@@ -1,0 +1,79 @@
+MEMO
+
+To: Delivery Manager / Release Governance
+
+From: QA Lead
+
+Date: 18/10/2026
+
+Subject: International Transfer Journey – Go/No-Go Assessment (Go-live in 3 working days)
+
+
+
+5.1 Go / No-Go Recommendation
+No-go.
+The release is not ready. Regression is at 68% with ~30 uninvestigated “flaky” failures; two open critical defects exist in the shared customer-profile service that underpins onboarding/KYC; UAT has executed only approximately half its scripts and remains unsigned; the FX-rate integration received only a single happy-path pass after deployment to staging yesterday. Two of four QA engineers have been on the project only five weeks.
+
+A “QA is green” statement cannot be given.Conditional path (only if all of the following are completed and evidenced within the next 72 hours):
+
+1. All 30 flaky failures triaged and either fixed, quarantined with root-cause owner and date, or proven non-blocking for this journey.
+2. Critical defects in the shared profile service either closed or formally accepted by the client with documented residual risk and workaround.
+3. UAT scripts for the international-transfer journey completed, defects raised/closed, and formal sign-off received.
+4. FX-rate integration subjected to negative, boundary, multi-currency, and failure-mode testing with results reviewed.
+5. Written risk acceptance from the client’s business and risk stakeholders for any remaining gaps.
+
+Absent the above, the release must be deferred.
+
+
+5.2 Next 72 Hours – Priority Order
+
+1. Immediate risk triage (first 8–12 h)
+Full triage of the 30 flaky failures (owner + severity + impact on transfer journey).
+2. Impact assessment of the two critical shared-service defects on the transfer flow.
+3. Freeze further non-critical development; all hands on stabilisation.
+
+Core path stabilisation (next 24–36 h)
+Dedicated pair (experienced QA + developer) on FX-rate negative/edge cases and profile-service interaction points.
+Re-run full regression on the international-transfer journey only; quarantine or fix blockers.
+Push remaining UAT scripts with client business team; daily defect triage.
+
+4. Evidence pack & decision gate (final 12–24 h)
+Produce a single evidence pack: regression delta, UAT status, open risks, residual impact.
+5. Formal go/no-go meeting with client business, risk and delivery.
+
+
+Drop / de-prioritise
+
+Any new feature polish, non-journey regression suites, exploratory testing outside the critical path, and non-essential documentation.
+Mentoring of the two new joiners beyond the minimum required to execute assigned scripts.
+
+5.3 Communication
+(a) Delivery Manager (internal, written)
+
+State the facts plainly: regression 68%, untriaged flakies, open criticals on shared service, incomplete UAT, thin FX testing, team experience gap. Explicitly refuse the “QA is green” request and list the precise conditions required for any conditional green. Offer the 72-hour recovery plan and request immediate prioritisation authority and client escalation support. Tone: factual, accountable, solution-oriented.
+
+(b) Client (business + risk stakeholders)
+
+Lead with the recommendation and residual risk to customer funds, FX accuracy and regulatory exposure. Present the same facts without internal blame language. Offer the concrete recovery plan and the decision gate. Do not use the phrase “QA is green.” Do not minimise the shared-service criticals or the incomplete UAT.
+Must not differ: factual status of defects, UAT progress, and the no-go recommendation.
+
+May differ: level of internal process criticism and exact recovery task ownership (kept internal).
+
+
+5.4 Changes to Prevent Recurrence + Metrics
+Practices to embed
+
+Mandatory “definition of done” gate: no story leaves development until automated regression for its path is green and flaky tests are zero or quarantined with owner.
+Shared-service impact review as a formal exit criterion for any journey that consumes the customer-profile or FX services.
+UAT entry criteria enforced: regression ≥95% stable, no open criticals on shared components, and a published test-evidence pack before client scripts begin.
+New-joiner ramp: shadowing + pair testing on critical journeys for the first two sprints; no solo ownership of release-critical paths until competency signed off.
+
+Metrics visible to the client (report weekly)
+
+Stable regression pass rate for the release-critical journeys (target ≥95%, with flaky count and age).
+Open critical/high defects on shared services that impact the journey, aged >3 days.
+UAT script completion % and sign-off status against the agreed scope.
+
+Do not measure / report
+
+Lines of test code, number of test cases written, or raw automation percentage. These create vanity pressure and do not indicate release readiness.

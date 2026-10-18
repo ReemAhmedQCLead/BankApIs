@@ -1,0 +1,27 @@
+Bug#1 Users with Newely created Accounts cannont check their bank account detials 
+
+Preconditions: 
+1. valid registred users
+
+
+Enviroment:
+https://parabank.parasoft.com/
+
+Serverity : High as it has imapct about main business functionality of system 
+
+Priority : high should be fixed as it is urgent bug 
+
+Steps 
+1. login with valid User account
+2. From Menu click on admin Portals
+
+Expected results 
+Normal User shouldn't be able to access admin menu or page as he not has the privlidages 
+
+Actual results 
+Normal User able to access admin menu or page 
+
+Attachment 
+
+
+![alt text](image-1.png)

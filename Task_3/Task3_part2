@@ -1,0 +1,40 @@
+
+3.1 Questions
+
+1. real big issue if the amount Source account belongs to a different customer . It must fail, and you shouldn’t leak whether the account exists.
+
+
+2. Idempotancy Key : Purpose: Networks fail, and the client often can’t know whether a payment went through. The key lets the client safely retry the same request without risk of a second debit. The server stores the key with the request and its outcome, and returns the original result for repeats.
+
+How I’d test it
+
+1. Same key, same body, sequential: The second call returns the same paymentId, reference, and response as the first, with exactly one debit and one ledger entry.
+2. Same key, same body, truly concurrent (e.g. 20 parallel requests): Exactly one payment is created. Others either wait and return the same result, or get 409 for in-flight, but never a duplicate.
+3. Same key, different body (different amount, beneficiary, or account): Must be rejected (typically 409 or 422), never silently executed or replaced by the original result.
+4. Different key, same body: Treated as a new payment (and note this is where business-level duplicate detection, if any, would apply).
+5. Missing, empty, malformed, or overlong key: Rejected with 400 if the key is mandatory.
+6. Scope: Is the key scoped per customer? User A’s key must not collide with, or retrieve, user B’s response.
+7. Failed first attempt: After a 402 or 422, does retrying with the same key replay the error, and is that behavior documented? After a 503 where nothing was committed, can a retry with the same key proceed and succeed?
+8. Expiry: Behavior after the key’s retention window (e.g. 24h) matches the documented policy.
+
+
+
+
+3.2 Expected retry behavior
+
+1. Timeout: The client retries with the same key and same body. If the original succeeded, the retry returns the original 201 (same paymentId), not a new payment. If the original is still processing, the retry gets a defined in-progress response (e.g. 409) or the eventual result. Never a second debit.
+
+2. 503:  The client retries with the same key . Either the original never committed, so the retry processes it once, or it did commit, so the retry returns the original result.
+
+
+3.3 How would you verify that the money actually moved — beyond checking that the API 
+returned 201?
+
+
+1. Source account: Balance decreased by exactly amount + fee, and nothing more. Check both the ledger and available balance, and the transaction history entry (amount, reference, timestamp, status).
+2.  integrity: Double-entry holds: debits equal credits across all affected accounts (source, beneficiary or settlement account, fee income account, FX position if applicable). There is exactly one set of entries per payment, and none for failed ones.
+3. Beneficiary side: For internal transfers, the beneficiary’s balance increased by the right amount. For external transfers, the payment reaches the downstream rail or partner (e.g. the outbound message or file exists with matching amount, currency, and reference), and the settlement or confirmation comes back.
+4. Status lifecycle: For PENDING payments, check that they eventually reach COMPLETED or FAILED, that there is no stuck PENDING, and that failures trigger a reversal or hold release with funds returned. Poll or query the payment (and any webhook or event) and confirm the final state matches the ledger.
+5. Consistency of returned fields: The fee, valueDate, and reference in the response match what is recorded in the database, the statement, and the notification sent to the customer.
+6. Limits and holds: The daily-limit counter was incremented exactly once, and any reservation was converted or released properly.
+

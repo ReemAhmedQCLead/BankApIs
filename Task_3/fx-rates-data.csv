@@ -1,0 +1,6 @@
+baseCurrency,targetCurrency,transferAmount
+USD,EUR,100
+EUR,GBP,250
+GBP,USD,75
+EGP,AED,5000
+AED,EGP,200

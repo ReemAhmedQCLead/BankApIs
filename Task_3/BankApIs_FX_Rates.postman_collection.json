@@ -1,0 +1,135 @@
+{
+	"info": {
+		"_postman_id": "0b88d29b-bf48-4ac1-82fc-86e32b515b45",
+		"name": "BankApIs_FX_Rates",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "59028678",
+		"_collection_link": "https://eng-reemahmedgomaa-5593633.postman.co/workspace/reemAhmed's-Workspace~0eea07ab-0ca0-4a77-890f-91c39d09c668/collection/59028678-0b88d29b-bf48-4ac1-82fc-86e32b515b45?action=share&source=collection_link&creator=59028678"
+	},
+	"item": [
+		{
+			"name": "1-GetRates-DataDrivenCSV",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(20);\r",
+							"    }\r",
+							"    );\r",
+							"\r",
+							"\r",
+							"pm.test(\"Response time is less than 200ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(200);}\r",
+							");\r",
+							"\r",
+							"\r",
+							"\r",
+							"const body = pm.response.json();\r",
+							"\r",
+							"pm.test(\"validate body success \", function () {\r",
+							"\r",
+							"    pm.expect(body.result).to.eql(\"success\");}\r",
+							"    );\r",
+							"\r",
+							"    pm.test(\"Base currency rate equals 1\", function () {\r",
+							"    pm.expect(body.rates[body.base_code]).to.equal(1);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/latest/{{baseCurrency}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"latest",
+						"{{baseCurrency}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "03 - Negative case: unsupported base currency",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"let body = {};",
+							"try { body = pm.response.json(); } catch (e) {}",
+							"pm.test('Unsupported currency is not reported as a successful rates response', function () { pm.expect(body.result).to.not.equal('success'); });",
+							"pm.test('Provider returns an explicit error indication or a non-2xx HTTP status', function () { const non2xx = pm.response.code < 200 || pm.response.code >= 300; const explicitError = body.result === 'error' || Boolean(body['error-type']) || Boolean(body.message); pm.expect(non2xx || explicitError, 'Expected non-2xx or a documented error payload; HTTP ' + pm.response.code + ', payload=' + JSON.stringify(body)).to.equal(true); });",
+							"pm.test('No rates object is accepted for unsupported currency', function () { pm.expect(body.result === 'error' || pm.response.code < 200 || pm.response.code >= 300 || !body.rates).to.equal(true); });"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/latest/{{invalidCurrency}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"latest",
+						"{{invalidCurrency}}"
+					]
+				},
+				"description": "Uses invalidCurrency from the selected environment (default ZZZ). Assertions intentionally allow either a non-2xx status or an explicit provider error payload, because providers may encode errors differently."
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "https://open.er-api.com/v6",
+			"type": "string"
+		},
+		{
+			"key": "invalidCurrency",
+			"value": "failed",
+			"type": "string"
+		}
+	]
+}
